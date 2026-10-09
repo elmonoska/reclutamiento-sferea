@@ -1,0 +1,63 @@
+# dependencias de Node
+node_modules/
+
+# variables de entorno
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# archivos de entorno permitidos para compartir
+# .env.example
+
+# builds
+dist/
+build/
+out/
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# cobertura de tests
+coverage/
+
+# archivos temporales
+.tmp/
+temp/
+tmp/
+
+# archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# archivos de editores
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+.idea/
+
+# archivos de cache
+.cache/
+.parcel-cache/
+.eslintcache
+
+# archivos generados por TypeScript
+*.tsbuildinfo
+
+# archivos de testing
+.nyc_output/
+
+# archivos locales
+*.local
+
+# archivos de Supabase local
+.supabase/
+
+# archivos de Vite
+.vite/
