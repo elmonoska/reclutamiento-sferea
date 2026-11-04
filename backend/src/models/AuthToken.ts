@@ -1,8 +1,8 @@
-import { AutoIncrement, BelongsTo, Column, DataType, Default, ForeignKey, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { AutoIncrement, BelongsTo, Column, DataType, ForeignKey, Model, PrimaryKey, Table } from "sequelize-typescript";
 import User from "./User.model";
 
 @Table({
-    tableName: 'tokens',
+    tableName: 'auth_tokens',
     underscored: true
 })
 export default class Token extends Model {
@@ -11,7 +11,7 @@ export default class Token extends Model {
     @Column({
         type: DataType.INTEGER
     })
-    declare id_token: number
+    declare id_auth_token: number
 
     @ForeignKey(() => User)
     @Column({

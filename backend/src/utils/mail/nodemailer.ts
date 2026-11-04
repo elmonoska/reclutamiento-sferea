@@ -10,16 +10,20 @@ const transport = nodemailer.createTransport({
   }
 });
 
-export function sendEmail(to: string, subject: string, text: string) {
-    transport.sendMail({
+export async function sendEmail(to: string, subject: string, text?: string, html?: string) {
+  try {
+    await transport.sendMail({
       from: "TestElMonoSka <elmonoska@correo.com>",
       to,
       subject,
-      text
+      text,
+      html
     }, (error, info) => {
       if (error) {
-        return console.log(error);
+        throw new Error(error)
       }
-      console.log("Message sent: %s", info.messageId);
-    });
+    });    
+  } catch (err) {
+    throw new Error(err.message);
+  }
 }
