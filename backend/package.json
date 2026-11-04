@@ -12,19 +12,25 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "@sequelize/postgres": "^7.0.0-alpha.48",
+    "bcrypt": "^6.0.0",
     "chalk": "^6.0.1",
     "dotenv": "^18.0.5",
     "express": "^5.2.1",
+    "express-validator": "^7.3.2",
     "morgan": "^1.12.1",
-    "sequelize": "^6.37.8"
+    "nodemailer": "^10.3.1",
+    "reflect-metadata": "^0.2.2",
+    "sequelize": "^6.37.8",
+    "sequelize-typescript": "^2.1.6"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.10",
     "@types/node": "^26.6.4",
+    "@types/nodemailer": "^8.0.2",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }

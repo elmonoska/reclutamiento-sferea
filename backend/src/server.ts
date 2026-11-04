@@ -1,14 +1,15 @@
 import "dotenv/config";
+import 'reflect-metadata';
 import app from "./app";
 import { PORT } from "./constants";
-import Logger from "./utiles/Logger";
-import { connectDB } from "./db/config";
+import Logger from "./utils/Logger";
+import dbConnection from "./db/config";
 
-async function initServer() {
+function initServer() {
     try {
         app.listen(PORT, async () => {
             Logger.info('Iniciando servidor...');
-            await connectDB()
+            await dbConnection.sync({force: true})
             Logger.success(`Escuchando puerto ${PORT}`);
         })   
     } catch (err) {

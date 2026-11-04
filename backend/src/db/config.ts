@@ -1,19 +1,9 @@
-import { ConnectionOptions, Sequelize } from "sequelize";
+import { Sequelize } from "sequelize-typescript";
 import { DB_URL } from "./constants";
-import { PostgresDialect } from "@sequelize/postgres";
-import Logger from "../utiles/Logger";
 
-const connectionOptions = {
-    dialect: PostgresDialect
-}
+const dbConnection = new Sequelize(DB_URL!, {
+    dialect: 'postgres',
+    models: [`${__dirname}/../models/**/*`],
+});
 
-export async function connectDB() {
-    try {
-        const connection = new Sequelize(DB_URL, connectionOptions)
-        Logger.info('Iniciando conexion a bd');
-        await connection.authenticate();
-        Logger.success('Conexion a bd exitosa');
-    } catch (err) {
-        Logger.error(`Ocurrio un error al conectar con la bd ${err.message}`);
-    }
-}
+export default dbConnection;
