@@ -7,6 +7,7 @@ import { FRONTEND_URL } from '../constants';
 import { generateToken } from '../utils/auth/generateCode';
 import { sendEmail } from '../lib/mail/nodemailer';
 import { generateJWT } from '../utils/auth/jwt';
+import { sendError, sendSuccess } from '../helpers/response.helper';
 
 export default class AuthController {
     static async createAccount(req: Request, res: Response) {
@@ -15,7 +16,7 @@ export default class AuthController {
 
             const userExists = await User.findOne({where: {email}});
             if (userExists) {
-                return res.status(409).json({error: 'La cuenta ya existe'});
+                return sendError(res, 409, 'La cuenta ya existe');
             }
 
             const hashedPassword = await hashPassword(password);
@@ -30,14 +31,15 @@ export default class AuthController {
                 'Confirmación de creación de cuenta',
                 `<h1>Has creado tu cuenta correctamente</h1>
                     <p>Es necesario confirmar tu cuenta mediante tu token en el siguiente enlace: </p>
-                    <a href="${FRONTEND_URL}/auth/confirmar-cuenta" target="_blank">Confirmalo aqui</a>
+                    <a href="${FRONTEND_URL}/auth/confirmar-cuenta/${user.uuid_user}" target="_blank">Confirmalo aqui</a>
                     <h2><strong>Token: ${token.token}</strong></h2>
                 `,
             );
-            return res.status(201).json({message: 'Cuenta creada exitosamente, revisa tu email para confirmarla'});
+
+            return sendSuccess(res, 201, {}, 'Cuenta creada exitosamente, revisa tu email para confirmarla');
         } catch (err) {
             Logger.error(`Ocurrio un error al crear la cuenta ${err.message}`);
-            return res.status(500).json({error: 'Ocurrio un error al crear la cuenta'});
+            return sendError(res, 500, 'Ocurrio un error al crear la cuenta');
         }
     }
 
@@ -50,24 +52,25 @@ export default class AuthController {
             });
 
             if (!user) {
-                return res.status(404).json({error: 'Cuenta no encontrada'});
+                return sendError(res, 404, 'Cuenta no encontrada');
             }
 
             if (user.confirmed) {
-                return res.status(400).json({error: 'La cuenta ya esta confirmada'});
+                return sendError(res, 400, 'La cuenta ya esta confirmada, inicia sesion');
             }
 
             const authToken = await AuthToken.findOne({ where: { id_user: user.id_user, token } });
             if (!authToken) {
-                return res.status(400).json({error: 'Token no valido o incorrecto'});
+                return sendError(res, 400, 'Token no valido o incorrecto');
             }
 
             user.confirmed = true;
             await Promise.all([user.save(), authToken.destroy()]);
-            return res.status(200).json({message: 'Cuenta confirmada exitosamente, ahora puedes iniciar sesion'});
+
+            return sendSuccess(res, 200, {}, 'Cuenta confirmada exitosamente, ahora puedes iniciar sesion')
         } catch (err) {
             Logger.error(`Ocurrio un error al confirmar la cuenta ${err.message}`);
-            return res.status(500).json({error: 'Ocurrio un error al confirmar la cuenta'});
+            return sendError(res, 500, 'Ocurrio un error al confirmar la cuenta');
         }
     }
 
@@ -80,12 +83,12 @@ export default class AuthController {
             });
 
             if (!user) {
-                return res.status(404).json({error: 'Cuenta no encontrada'});
+                return sendError(res, 404, 'Cuenta no encontrada');
             }
 
             const isValidPassword = await checkPassword(password, user.password);
             if (!isValidPassword) {
-                return res.status(401).json({error: 'Correo o contraseña invalidos'});
+                return sendError(res, 401, 'Correo o contraseña invalidos');
             }
 
             if (!user.confirmed) {
@@ -100,19 +103,19 @@ export default class AuthController {
                     'Confirmación de cuenta',
                     `<h1>Confirma tu cuenta</h1>
                         <p>Es necesario confirmar tu cuenta mediante tu token en el siguiente enlace: </p>
-                        <a href="${FRONTEND_URL}/auth/confirmar-cuenta" target="_blank">Confirmalo aqui</a>
+                        <a href="${FRONTEND_URL}/auth/confirmar-cuenta/${user.uuid_user}" target="_blank">Confirmalo aqui</a>
                         <h2><strong>Token: ${authToken.token}</strong></h2>
                     `,
                 );
-                return res.status(403).json({error: 'La cuenta no ha sido confirmada, se ha enviado un email para hacerlo'})
+                return sendError(res, 403, 'La cuenta no ha sido confirmada, se ha enviado un email para hacerlo');
             }
 
-            const jwt = generateJWT(user.uuid_user);
+            const jwt = await generateJWT(user.uuid_user);
 
-            return res.status(200).json({message: 'Cuenta iniciada correctamente', data: { token: jwt }});
+            return sendSuccess(res, 200, {token: jwt}, 'Cuenta iniciada correctamente');
         } catch (err) {
             Logger.error(`Ocurrio un error al ingresar la cuenta ${err.message}`);
-            return res.status(500).json({error: 'Ocurrio un error al ingresar la cuenta'});
+            return sendError(res, 500, 'Ocurrio un error al ingresar a la cuneta');
         }
     }
 }

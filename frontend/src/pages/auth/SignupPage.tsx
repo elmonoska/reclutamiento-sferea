@@ -3,21 +3,39 @@ import { Link } from "react-router";
 import { useForm } from "react-hook-form";
 import type { TSignupForm } from "../../types";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { toast } from "react-toastify";
+import { createAccount } from "../../api/auth";
+
+const initialValues: TSignupForm = {
+    name: '',
+    email: '',
+    password: '',
+    confirm_password: '',
+};
 
 export default function SignupPage() {
 
-    const [mostrarContrasena, setMostrarContrasena] = useState(false);
-    const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmation, setShowConfirmation] = useState(false);
 
     const {
         register,
         handleSubmit,
         getValues,
-        formState: { errors }
-    } = useForm<TSignupForm>();
+        formState: { errors },
+        reset
+    } = useForm<TSignupForm>({defaultValues: initialValues, mode: 'onTouched'});
 
-    const crearCuenta = (datos: TSignupForm) => {
-        console.log(datos);
+    const sendForm = async (dataForm: TSignupForm) => {
+        const res = await createAccount(dataForm);
+
+        if (!res.success) {
+            toast.error(res.error)
+            return;
+        }
+
+        toast.success(res.message);
+        reset();
     };
 
     return (
@@ -40,7 +58,7 @@ export default function SignupPage() {
                 <div className="bg-white border border-gray-100 rounded-2xl shadow-lg p-8">
 
                     <form
-                        onSubmit={handleSubmit(crearCuenta)}
+                        onSubmit={handleSubmit(sendForm)}
                         className="space-y-5"
                     >
 
@@ -113,7 +131,7 @@ export default function SignupPage() {
 
                                 <input
                                     id="password"
-                                    type={mostrarContrasena ? "text" : "password"}
+                                    type={showPassword ? "text" : "password"}
                                     placeholder="••••••••"
                                     {...register("password", {
                                         required: "La contraseña es obligatoria",
@@ -127,15 +145,15 @@ export default function SignupPage() {
 
                                 <button
                                     type="button"
-                                    onClick={() => setMostrarContrasena(!mostrarContrasena)}
+                                    onClick={() => setShowPassword(!showPassword)}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500 transition"
                                     aria-label={
-                                        mostrarContrasena
+                                        showPassword
                                             ? "Ocultar contraseña"
                                             : "Mostrar contraseña"
                                     }
                                 >
-                                    {mostrarContrasena ? (
+                                    {showPassword ? (
                                         <FiEyeOff size={20} />
                                     ) : (
                                         <FiEye size={20} />
@@ -154,7 +172,7 @@ export default function SignupPage() {
                         {/* confirmar contraseña */}
                         <div>
                             <label
-                                htmlFor="confirmPassword"
+                                htmlFor="confirm_password"
                                 className="block text-sm font-medium text-gray-700 mb-2"
                             >
                                 Confirmar contraseña
@@ -163,10 +181,10 @@ export default function SignupPage() {
                             <div className="relative">
 
                                 <input
-                                    id="confirmPassword"
-                                    type={mostrarConfirmacion ? "text" : "password"}
+                                    id="confirm_password"
+                                    type={showConfirmation ? "text" : "password"}
                                     placeholder="••••••••"
-                                    {...register("confirmPassword", {
+                                    {...register("confirm_password", {
                                         required: "Confirma tu contraseña",
                                         validate: (valor) =>
                                             valor === getValues("password") ||
@@ -177,15 +195,15 @@ export default function SignupPage() {
 
                                 <button
                                     type="button"
-                                    onClick={() => setMostrarConfirmacion(!mostrarConfirmacion)}
+                                    onClick={() => setShowConfirmation(!showConfirmation)}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500 transition"
                                     aria-label={
-                                        mostrarConfirmacion
+                                        showConfirmation
                                             ? "Ocultar contraseña"
                                             : "Mostrar contraseña"
                                     }
                                 >
-                                    {mostrarConfirmacion ? (
+                                    {showConfirmation ? (
                                         <FiEyeOff size={20} />
                                     ) : (
                                         <FiEye size={20} />
@@ -194,9 +212,9 @@ export default function SignupPage() {
 
                             </div>
 
-                            {errors.confirmPassword && (
+                            {errors.confirm_password && (
                                 <p className="mt-1 text-sm text-red-500">
-                                    {errors.confirmPassword.message}
+                                    {errors.confirm_password.message}
                                 </p>
                             )}
                         </div>

@@ -6,3 +6,5 @@ export const NODEMAILER_PASS = process.env.NODEMAILER_PASS;
 export const FRONTEND_URL = process.env.FRONTEND_URL;
 
 export const JWT_SECRET = process.env.JWT_SECRET as string;
+
+export const NODE_ENV = process.env.NODE_ENV;

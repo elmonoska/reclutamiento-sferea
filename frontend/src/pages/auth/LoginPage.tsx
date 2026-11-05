@@ -1,21 +1,36 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import type { TLoginForm } from "../../types";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { login } from "../../api/auth";
+import { toast } from "react-toastify";
+
+const initialValues: TLoginForm = {
+    email: '',
+    password: ''
+};
 
 export default function LoginPage() {
-
-    const [mostrarContrasena, setMostrarContrasena] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const navigate = useNavigate();
 
     const {
         register,
         handleSubmit,
         formState: { errors }
-    } = useForm<TLoginForm>();
+    } = useForm<TLoginForm>({defaultValues: initialValues, mode: 'onTouched'});
 
-    const iniciarSesion = (datos: TLoginForm) => {
-        console.log(datos);
+    const sendForm = async (dataForm: TLoginForm) => {
+        const res = await login(dataForm);
+        if (!res.success) {
+            toast.error(res.error);
+            return;
+        }
+
+        toast.success(res.message);
+        localStorage.setItem('token', res.data.token);
+        navigate('/');
     };
 
     return (
@@ -38,7 +53,7 @@ export default function LoginPage() {
                 <div className="bg-white border border-gray-100 rounded-2xl shadow-lg p-8">
 
                     <form
-                        onSubmit={handleSubmit(iniciarSesion)}
+                        onSubmit={handleSubmit(sendForm)}
                         className="space-y-5"
                     >
 
@@ -85,7 +100,7 @@ export default function LoginPage() {
 
                                 <input
                                     id="password"
-                                    type={mostrarContrasena ? "text" : "password"}
+                                    type={showPassword ? "text" : "password"}
                                     placeholder="••••••••"
                                     {...register("password", {
                                         required: "La contraseña es obligatoria",
@@ -99,15 +114,15 @@ export default function LoginPage() {
 
                                 <button
                                     type="button"
-                                    onClick={() => setMostrarContrasena(!mostrarContrasena)}
+                                    onClick={() => setShowPassword(!showPassword)}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500 transition"
                                     aria-label={
-                                        mostrarContrasena
+                                        showPassword
                                             ? "Ocultar contraseña"
                                             : "Mostrar contraseña"
                                     }
                                 >
-                                    {mostrarContrasena ? (
+                                    {showPassword ? (
                                         <FiEyeOff size={20} />
                                     ) : (
                                         <FiEye size={20} />

@@ -11,7 +11,7 @@ authRouter.post(
     body('name').notEmpty().withMessage('El nombre es requerido'),
     body('email').notEmpty().withMessage('El email es requerido').isEmail().withMessage('Email no valido'),
     body('password').notEmpty().withMessage('La contraseña es requerida'),
-    body('confirm-password').notEmpty().withMessage('La confirmación de contraseña es requerida').custom((value, {req}) => {
+    body('confirm_password').notEmpty().withMessage('La confirmación de contraseña es requerida').custom((value, {req}) => {
         if (value !== req.body.password) {
             throw new Error('Las contraseñas no coinciden')
         }
