@@ -9,7 +9,7 @@ function initServer() {
     try {
         app.listen(PORT, async () => {
             Logger.info('Iniciando servidor...');
-            await dbConnection.sync({force: true})
+            await dbConnection.sync({alter: true})
             Logger.success(`Escuchando puerto ${PORT}`);
         })   
     } catch (err) {
