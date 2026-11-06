@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { useForm } from "react-hook-form";
-import type { TSignupForm } from "../../types";
+import type { TSignupForm } from "../../types/forms";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { createAccount } from "../../api/auth";
@@ -22,15 +22,15 @@ export default function SignupPage() {
         register,
         handleSubmit,
         getValues,
-        formState: { errors },
+        formState: { errors, isValid },
         reset
-    } = useForm<TSignupForm>({defaultValues: initialValues, mode: 'onTouched'});
+    } = useForm<TSignupForm>({defaultValues: initialValues, mode: 'onChange'});
 
     const sendForm = async (dataForm: TSignupForm) => {
         const res = await createAccount(dataForm);
 
         if (!res.success) {
-            toast.error(res.error)
+            toast.error(res.message)
             return;
         }
 
@@ -222,7 +222,8 @@ export default function SignupPage() {
                         {/* boton crear cuenta */}
                         <button
                             type="submit"
-                            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-lg transition duration-200 shadow-sm"
+                            disabled={!isValid}
+                            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-lg transition duration-200 shadow-sm cursor-pointer disabled:bg-orange-200 disabled:cursor-not-allowed disabled:text-white"
                         >
                             Crear cuenta
                         </button>

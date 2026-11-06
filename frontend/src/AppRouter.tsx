@@ -5,6 +5,8 @@ import SignupPage from "./pages/auth/SignupPage"
 import ConfirmAccountPage from "./pages/auth/ConfirmAccountPage"
 import AppLayout from "./layouts/AppLayout"
 import AppIndexPage from "./pages/AppIndexPage"
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage"
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage"
 
 export default function AppRouter() {
 
@@ -16,6 +18,8 @@ export default function AppRouter() {
           <Route path="iniciar-sesion" element={<LoginPage />} />
           <Route path="crear-cuenta" element={<SignupPage />} />
           <Route path="confirmar-cuenta/:uuidUser" element={<ConfirmAccountPage />} />
+          <Route path="olvide-contrasena" element={<ForgotPasswordPage />} />
+          <Route path="restablecer-contrasena/:uuidUser" element={<ResetPasswordPage />} />
         </Route>
 
         {/* app */}

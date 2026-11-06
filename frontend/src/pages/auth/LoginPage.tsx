@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
-import type { TLoginForm } from "../../types";
+import type { TLoginForm } from "../../types/forms";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { login } from "../../api/auth";
 import { toast } from "react-toastify";
@@ -18,13 +18,13 @@ export default function LoginPage() {
     const {
         register,
         handleSubmit,
-        formState: { errors }
-    } = useForm<TLoginForm>({defaultValues: initialValues, mode: 'onTouched'});
+        formState: { errors, isValid }
+    } = useForm<TLoginForm>({defaultValues: initialValues, mode: 'onChange'});
 
     const sendForm = async (dataForm: TLoginForm) => {
         const res = await login(dataForm);
         if (!res.success) {
-            toast.error(res.error);
+            toast.error(res.message);
             return;
         }
 
@@ -140,7 +140,7 @@ export default function LoginPage() {
                         {/* recuperar contraseña */}
                         <div className="flex justify-end">
                             <Link
-                                to="/auth/recuperar-contrasena"
+                                to="/auth/olvide-contrasena"
                                 className="text-sm font-medium text-orange-500 hover:text-orange-600 transition"
                             >
                                 ¿Olvidaste tu contraseña?
@@ -150,7 +150,8 @@ export default function LoginPage() {
                         {/* boton iniciar sesion */}
                         <button
                             type="submit"
-                            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-lg transition duration-200 shadow-sm"
+                            disabled={!isValid}
+                            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-lg transition duration-200 shadow-sm cursor-pointer disabled:bg-orange-200 disabled:cursor-not-allowed disabled:text-white"
                         >
                             Iniciar sesión
                         </button>

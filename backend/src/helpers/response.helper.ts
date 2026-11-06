@@ -1,16 +1,27 @@
 import { Response } from 'express'
 
-export function sendSuccess<T>(res: Response, statusCode: number, data: T, message: string) {
+type SuccessResponse<T> = {
+    success: true;
+    message: string;
+    data: T | null
+}
+
+type ErrorResponse = {
+    success: false;
+    message: string;
+}
+
+export function sendSuccess<T>(res: Response, statusCode: number, message: string, data: T | null = null): Response<SuccessResponse<T>> {
     return res.status(statusCode).json({
         success: true,
         message,
-        data,
+        data
     });
 }
 
-export function sendError(res: Response, statusCode: number, error: string) {
+export function sendError(res: Response, statusCode: number, message: string): Response<ErrorResponse> {
     return res.status(statusCode).json({
         success: false,
-        error
+        message
     });
 }

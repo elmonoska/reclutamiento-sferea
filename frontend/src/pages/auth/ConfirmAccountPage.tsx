@@ -11,11 +11,15 @@ export default function ConfirmAccountPage() {
     const navigate = useNavigate();
 
     const handleComplete = async (value: string) => {
-        const res = await confirmAcconut(value, uuidUser ?? '');
+        const uuid_user = uuidUser ?? '';
+        const dataForm = {token: value, uuid_user};
+        
+        const res = await confirmAcconut(dataForm);
         if (!res.success) {
-          toast.error(res.error);
+          toast.error(res.message);
           return;
         }
+
         toast.success(res.message);
         navigate('/auth/iniciar-sesion');
     };

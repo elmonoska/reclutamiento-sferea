@@ -1,5 +1,4 @@
 import "dotenv/config";
-import 'reflect-metadata';
 import app from "./app";
 import { PORT } from "./constants";
 import Logger from "./utils/Logger";

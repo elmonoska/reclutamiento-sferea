@@ -36,9 +36,9 @@ export default class AuthController {
                 `,
             );
 
-            return sendSuccess(res, 201, {}, 'Cuenta creada exitosamente, revisa tu email para confirmarla');
+            return sendSuccess(res, 201, 'Cuenta creada exitosamente, revisa tu email para confirmarla');
         } catch (err) {
-            Logger.error(`Ocurrio un error al crear la cuenta ${err.message}`);
+            Logger.error(`Ocurrio un error al crear la cuenta: ${err.message}`);
             return sendError(res, 500, 'Ocurrio un error al crear la cuenta');
         }
     }
@@ -67,9 +67,9 @@ export default class AuthController {
             user.confirmed = true;
             await Promise.all([user.save(), authToken.destroy()]);
 
-            return sendSuccess(res, 200, {}, 'Cuenta confirmada exitosamente, ahora puedes iniciar sesion')
+            return sendSuccess(res, 200, 'Cuenta confirmada exitosamente, puedes iniciar sesion');
         } catch (err) {
-            Logger.error(`Ocurrio un error al confirmar la cuenta ${err.message}`);
+            Logger.error(`Ocurrio un error al confirmar la cuenta: ${err.message}`);
             return sendError(res, 500, 'Ocurrio un error al confirmar la cuenta');
         }
     }
@@ -112,10 +112,85 @@ export default class AuthController {
 
             const jwt = await generateJWT(user.uuid_user);
 
-            return sendSuccess(res, 200, {token: jwt}, 'Cuenta iniciada correctamente');
+            return sendSuccess(res, 200, 'Inicio de sesion exitoso', {token: jwt});
         } catch (err) {
-            Logger.error(`Ocurrio un error al ingresar la cuenta ${err.message}`);
-            return sendError(res, 500, 'Ocurrio un error al ingresar a la cuneta');
+            Logger.error(`Ocurrio un error al ingresar a la cuenta: ${err.message}`);
+            return sendError(res, 500, 'Ocurrio un error al ingresar a la cuenta');
+        }
+    }
+
+    static async forgotPassword(req: Request, res: Response) {
+        try {
+            const { email } = req.body;
+            const user = await User.findOne({where: { email }});
+
+            const message = 'Si el correo esta registrado, recibiras un correo con las instrucciones para restablecer tu contraseña';
+
+            if (!user) {
+                return sendSuccess(res, 200, message);
+            }
+
+            // destruir tokens existentes y crear nuevos
+            await AuthToken.destroy({where: {id_user: user.id_user}});
+            const token = await generateToken();
+            const authToken = await AuthToken.create({id_user: user.id_user, token});
+
+            if (!user.confirmed) {
+                // envio de confirmacion de cuenta
+                await sendEmail(
+                    user.email,
+                    'Confirmación de cuenta',
+                    'Confirmación de cuenta',
+                    `<h1>Confirma tu cuenta</h1>
+                        <p>Es necesario confirmar tu cuenta mediante tu token en el siguiente enlace: </p>
+                        <a href="${FRONTEND_URL}/auth/confirmar-cuenta/${user.uuid_user}" target="_blank">Confirmalo aqui</a>
+                        <h2><strong>Token: ${authToken.token}</strong></h2>
+                    `,
+                );
+                return sendSuccess(res, 200, message);
+            }
+
+            await sendEmail(
+                user.email,
+                'Confirmacion de restablecimiento de contraseña',
+                'Confirmacion de restablecimiento de contraseña',
+                `<h1>Confirma tu restablecimiento de contraseña</h1>
+                    <p>Es necesario confirmar el restablecimiento de tu contraseña con tu token en el siguiente enlace: </p>
+                    <a href="${FRONTEND_URL}/auth/restablecer-contrasena/${user.uuid_user}" target="_blank">Confirmalo aqui</a>
+                    <h2><strong>Token: ${authToken.token}</strong></h2>
+                `,
+            );
+
+            return sendSuccess(res, 200, message);
+        } catch (err) {
+            Logger.error(`Ocurrio un error solicitar el restablecimiento de contraseña: ${err.message}`);
+            return sendError(res, 500, 'Ocurrio un error solicitar el restablecimiento de contraseña');
+        }
+    }
+
+    static async resetPassword(req: Request, res: Response) {
+        try {
+            const { uuid_user, password, token } = req.body;
+
+            const user = await User.findOne({where: {uuid_user}});
+            if (!user) {
+                return sendError(res, 404, 'Cuenta no encontrada');
+            }
+
+            const authToken = await AuthToken.findOne({where: {id_user: user.id_user, token}});
+            if (!authToken) {
+                return sendError(res, 409, 'Token no valido o incorrecto');
+            }
+            await authToken.destroy();
+
+            const hashedPassword = await hashPassword(password);
+            user.password = hashedPassword;
+            await user.save();
+
+            return sendSuccess(res, 200, 'Contraseña cambiada exitosamente')
+        } catch (err) {
+            Logger.error(`Ocurrio un error al restablecer la contraseña: ${err.message}`);
+            return sendError(res, 500, 'Ocurrio un error al restablecer la contraseña');
         }
     }
 }
