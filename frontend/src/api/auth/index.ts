@@ -12,9 +12,9 @@ export async function createAccount(dataForm: TSignupForm): Promise<TApiResponse
     }
 }
 
-export async function confirmAcconut(dataForm: TConfirmAccountForm): Promise<TApiResponse> {
+export async function confirmAccount(dataForm: TConfirmAccountForm): Promise<TApiResponse> {
     try {
-        const {data} = await api.post('/auth/confirm-account', {dataForm});
+        const {data} = await api.post('/auth/confirm-account', {...dataForm});
         return data;
     } catch (err) {
         return { success: false, message: apiErrorHandler(err) };

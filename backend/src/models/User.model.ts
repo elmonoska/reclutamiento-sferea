@@ -1,5 +1,16 @@
-import { AutoIncrement, Column, DataType, Default, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { AutoIncrement, Column, DataType, Default, DefaultScope, Model, PrimaryKey, Scopes, Table } from "sequelize-typescript";
 
+@DefaultScope(() => ({
+    attributes: {exclude: ['password']}
+}))
+@Scopes(() => ({
+    withPassword: {
+        attributes: {include: ['password']}
+    },
+    basic: {
+        attributes: ['uuid_user', 'id_user', 'name', 'email', 'confirmed']
+    }
+}))
 @Table({
     tableName: 'users',
     timestamps: true,

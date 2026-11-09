@@ -7,17 +7,13 @@ import { FRONTEND_URL } from '../constants';
 import { generateToken } from '../utils/auth/generateCode';
 import { sendEmail } from '../lib/mail/nodemailer';
 import { generateJWT } from '../utils/auth/jwt';
-import { sendError, sendSuccess } from '../helpers/response.helper';
+import { normalizeError, sendError, sendSuccess } from '../helpers/response.helper';
+import { TRequestWithUserAndToken } from '../types/auth';
 
 export default class AuthController {
     static async createAccount(req: Request, res: Response) {
         try {
             const {name, email, password} = req.body;
-
-            const userExists = await User.findOne({where: {email}});
-            if (userExists) {
-                return sendError(res, 409, 'La cuenta ya existe');
-            }
 
             const hashedPassword = await hashPassword(password);
             const user = await User.create({name, email, password: hashedPassword});
@@ -38,38 +34,19 @@ export default class AuthController {
 
             return sendSuccess(res, 201, 'Cuenta creada exitosamente, revisa tu email para confirmarla');
         } catch (err) {
-            Logger.error(`Ocurrio un error al crear la cuenta: ${err.message}`);
+            Logger.error(`Ocurrio un error al crear la cuenta: ${normalizeError(err)}`);
             return sendError(res, 500, 'Ocurrio un error al crear la cuenta');
         }
     }
 
-    static async confirmAccount(req: Request, res: Response) {
+    static async confirmAccount(req: TRequestWithUserAndToken, res: Response) {
         try {
-            const { uuid_user, token } = req.body;
-            const user = await User.findOne({
-                where: {uuid_user},
-                attributes: ['id_user', 'confirmed']
-            });
-
-            if (!user) {
-                return sendError(res, 404, 'Cuenta no encontrada');
-            }
-
-            if (user.confirmed) {
-                return sendError(res, 400, 'La cuenta ya esta confirmada, inicia sesion');
-            }
-
-            const authToken = await AuthToken.findOne({ where: { id_user: user.id_user, token } });
-            if (!authToken) {
-                return sendError(res, 400, 'Token no valido o incorrecto');
-            }
-
-            user.confirmed = true;
-            await Promise.all([user.save(), authToken.destroy()]);
+            req.user!.confirmed = true;
+            await Promise.all([req.user!.save(), req.authToken!.destroy()]);
 
             return sendSuccess(res, 200, 'Cuenta confirmada exitosamente, puedes iniciar sesion');
         } catch (err) {
-            Logger.error(`Ocurrio un error al confirmar la cuenta: ${err.message}`);
+            Logger.error(`Ocurrio un error al confirmar la cuenta: ${normalizeError(err)}`);
             return sendError(res, 500, 'Ocurrio un error al confirmar la cuenta');
         }
     }

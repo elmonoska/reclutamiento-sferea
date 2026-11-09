@@ -5,7 +5,7 @@ import User from "./User.model";
     tableName: 'auth_tokens',
     underscored: true
 })
-export default class Token extends Model {
+export default class AuthToken extends Model {
     @AutoIncrement
     @PrimaryKey
     @Column({

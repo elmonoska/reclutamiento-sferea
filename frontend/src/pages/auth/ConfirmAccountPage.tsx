@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from "react";
 import { OTPInput} from "input-otp";
 import Slot from "./components/Slot";
-import { confirmAcconut } from "../../api/auth";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
+import { confirmAccount } from "../../api/auth";
 
 export default function ConfirmAccountPage() {
     const [code, setCode] = useState("");
@@ -14,7 +14,7 @@ export default function ConfirmAccountPage() {
         const uuid_user = uuidUser ?? '';
         const dataForm = {token: value, uuid_user};
         
-        const res = await confirmAcconut(dataForm);
+        const res = await confirmAccount(dataForm);
         if (!res.success) {
           toast.error(res.message);
           return;

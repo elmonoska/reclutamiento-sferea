@@ -2,6 +2,7 @@ import { Router } from "express";
 import AuthController from "../controllers/Auth.controller";
 import { handleInputErrors } from "../middlewares";
 import { body } from "express-validator";
+import { getUserByUuid, userAlreadyConfirmed, userExistsByEmail, validateAuthTokenById } from "../middlewares/auth.middleware";
 
 const authRouter = Router();
 
@@ -17,6 +18,7 @@ authRouter.post(
         return true;
     }),
     handleInputErrors,
+    userExistsByEmail,
     AuthController.createAccount
 );
 
@@ -25,6 +27,9 @@ authRouter.post(
     body('uuid_user').notEmpty().withMessage('El uuid es requerido').isUUID().withMessage('Uuid no valido'),
     body('token').notEmpty().withMessage('El token es requerido').matches(/^\d{6}$/).withMessage('Token no valido'),
     handleInputErrors,
+    getUserByUuid,
+    userAlreadyConfirmed,
+    validateAuthTokenById,
     AuthController.confirmAccount
 );
 

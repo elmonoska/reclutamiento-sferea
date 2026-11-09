@@ -1,9 +1,10 @@
 import nodemailer from "nodemailer";
-import { NODEMAILER_PASS, NODEMAILER_USER } from "../../constants";
+import { NODEMAILER_HOST, NODEMAILER_PASS, NODEMAILER_PORT, NODEMAILER_SENDER, NODEMAILER_USER } from "../../constants";
+import { normalizeError } from "../../helpers/response.helper";
 
 const transport = nodemailer.createTransport({
-  host: "sandbox.smtp.mailtrap.io",
-  port: 2525,
+  host: NODEMAILER_HOST,
+  port: NODEMAILER_PORT,
   auth: {
     user: NODEMAILER_USER,
     pass: NODEMAILER_PASS
@@ -12,18 +13,16 @@ const transport = nodemailer.createTransport({
 
 export async function sendEmail(to: string, subject: string, text?: string, html?: string) {
   try {
-    await transport.sendMail({
-      from: "TestElMonoSka <elmonoska@correo.com>",
+    const mailInfo = await transport.sendMail({
+      from: NODEMAILER_SENDER,
       to,
       subject,
       text,
       html
-    }, (error, info) => {
-      if (error) {
-        throw new Error(error)
-      }
-    });    
+    });
+
+    return mailInfo;
   } catch (err) {
-    throw new Error(err.message);
+    throw new Error(normalizeError(err));
   }
 }
