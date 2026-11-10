@@ -1,7 +1,7 @@
 import "dotenv/config";
 import app from "./app";
 import { PORT } from "./constants";
-import Logger from "./utils/Logger";
+import Logger from "./utils/logger.utils";
 import dbConnection from "./db/config";
 
 function initServer() {

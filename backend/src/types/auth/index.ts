@@ -1,6 +1,6 @@
 import {Request} from 'express';
-import User from '../../models/User.model';
-import AuthToken from '../../models/AuthToken';
+import User from '../../models/user.model';
+import AuthToken from '../../models/auth-token.model';
 
 export type TRequestWithUser = Request & {
     user?: User;

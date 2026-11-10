@@ -1,5 +1,4 @@
 import { Response } from 'express'
-import Logger from '../utils/Logger';
 
 type SuccessResponse<T> = {
     success: true;

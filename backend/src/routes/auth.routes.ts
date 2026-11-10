@@ -1,8 +1,8 @@
 import { Router } from "express";
-import AuthController from "../controllers/Auth.controller";
 import { handleInputErrors } from "../middlewares";
 import { body } from "express-validator";
-import { getUserByUuid, userAlreadyConfirmed, userExistsByEmail, validateAuthTokenById } from "../middlewares/auth.middleware";
+import { getUserByEmail, getUserByUuid, preventDuplicateEmail, requireUnconfirmedAccount, validateAuthTokenById } from "../middlewares/auth.middleware";
+import AuthController from "../controllers/auth.controller";
 
 const authRouter = Router();
 
@@ -18,7 +18,7 @@ authRouter.post(
         return true;
     }),
     handleInputErrors,
-    userExistsByEmail,
+    preventDuplicateEmail,
     AuthController.createAccount
 );
 
@@ -28,7 +28,7 @@ authRouter.post(
     body('token').notEmpty().withMessage('El token es requerido').matches(/^\d{6}$/).withMessage('Token no valido'),
     handleInputErrors,
     getUserByUuid,
-    userAlreadyConfirmed,
+    requireUnconfirmedAccount,
     validateAuthTokenById,
     AuthController.confirmAccount
 );
@@ -38,6 +38,7 @@ authRouter.post(
     body('email').notEmpty().withMessage('El email es requerido').isEmail().withMessage('Email no valido'),
     body('password').notEmpty().withMessage('La contraseña es requerida'),
     handleInputErrors,
+    getUserByEmail(true),
     AuthController.login
 );
 
@@ -60,6 +61,8 @@ authRouter.post(
         return true;
     }),
     handleInputErrors,
+    getUserByUuid,
+    validateAuthTokenById,
     AuthController.resetPassword
 );
 
