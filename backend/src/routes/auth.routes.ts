@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { handleInputErrors } from "../middlewares";
+import { handleInputErrors } from "../middlewares/index.middleware";
 import { body } from "express-validator";
 import { getUserByEmail, getUserByUuid, preventDuplicateEmail, requireUnconfirmedAccount, validateAuthTokenById } from "../middlewares/auth.middleware";
 import AuthController from "../controllers/auth.controller";
