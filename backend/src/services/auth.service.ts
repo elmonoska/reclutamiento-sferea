@@ -46,5 +46,4 @@ export default class AuthService {
         user.password = await hashPassword(password);
         await user.save();
     }
-
 }

@@ -32,7 +32,6 @@ export default class AuthController {
     static async login(req: TRequestWithUser, res: Response) {
         try {
             const { password } = req.body;
-
             const jwt = await AuthService.authenticate(password, req.user!);
 
             return sendSuccess(res, 200, 'Inicio de sesion exitoso', {token: jwt});
@@ -52,7 +51,6 @@ export default class AuthController {
     static async forgotPassword(req: Request, res: Response) {
         try {
             const { email } = req.body;
-
             const message = 'Si el correo esta registrado, recibiras un correo con las instrucciones para restablecer tu contraseña';
             await AuthService.requestPasswordReset(email);
 
@@ -66,7 +64,6 @@ export default class AuthController {
     static async resetPassword(req: TRequestWithUserAndToken, res: Response) {
         try {
             const { password } = req.body;
-
             await AuthService.resetUserPassword(password, req.user!, req.authToken!);
 
             return sendSuccess(res, 200, 'Contraseña cambiada exitosamente')

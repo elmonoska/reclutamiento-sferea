@@ -28,5 +28,4 @@ export function sendError(res: Response, statusCode: number, message: string): R
 
 export function normalizeError(err: unknown) {
     return err instanceof Error ? err.message : String(err)
-    
 }
